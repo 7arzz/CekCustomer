@@ -4,13 +4,9 @@ import {
   Plus, 
   Search, 
   Filter, 
-  LayoutGrid, 
-  List, 
   Users,
-  SearchX,
-  Loader2
+  SearchX
 } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
 import { 
   subscribeToCustomers, 
   addCustomer, 
@@ -24,7 +20,6 @@ import CustomerDetailDrawer from '../components/CustomerDetailDrawer';
 import toast from 'react-hot-toast';
 
 const CustomersPage = () => {
-  const { currentUser } = useAuth();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,13 +28,10 @@ const CustomersPage = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   useEffect(() => {
-    if (!currentUser) return;
-
-    const unsubscribe = subscribeToCustomers(currentUser.uid, (data) => {
+    const unsubscribe = subscribeToCustomers((data) => {
       setCustomers(data);
       setLoading(false);
       
-      // Update selected customer if it's open to reflect real-time changes
       if (selectedCustomer) {
         const updated = data.find(c => c.id === selectedCustomer.id);
         if (updated) setSelectedCustomer(updated);
@@ -47,7 +39,7 @@ const CustomersPage = () => {
     });
 
     return () => unsubscribe();
-  }, [currentUser, selectedCustomer?.id]);
+  }, [selectedCustomer?.id]);
 
   const filteredCustomers = useMemo(() => {
     return customers.filter(c => 
@@ -59,7 +51,7 @@ const CustomersPage = () => {
 
   const handleAddCustomer = async (data) => {
     try {
-      await addCustomer(currentUser.uid, data);
+      await addCustomer(data);
       setIsAddModalOpen(false);
       toast.success('Customer berhasil ditambahkan!');
     } catch (error) {
@@ -70,7 +62,7 @@ const CustomersPage = () => {
 
   const handleUpdateCustomer = async (id, updates) => {
     try {
-      await updateCustomer(currentUser.uid, id, updates);
+      await updateCustomer(id, updates);
       toast.success('Status diperbarui');
     } catch (error) {
        console.error(error);
@@ -80,7 +72,7 @@ const CustomersPage = () => {
 
   const handleDeleteCustomer = async (id) => {
     try {
-      await deleteCustomer(currentUser.uid, id);
+      await deleteCustomer(id);
       toast.success('Customer berhasil dihapus');
     } catch (error) {
         console.error(error);
@@ -90,7 +82,7 @@ const CustomersPage = () => {
 
   const handleAddNoteToCustomer = async (id, note, currentNotes) => {
     try {
-      await addNote(currentUser.uid, id, note, currentNotes);
+      await addNote(id, note, currentNotes);
       toast.success('Catatan ditambahkan');
     } catch (error) {
         console.error(error);
@@ -105,11 +97,10 @@ const CustomersPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold dark:text-white">Daftar Customer</h2>
-          <p className="text-slate-500 dark:text-slate-400">Total {customers.length} prospek dalam database Anda.</p>
+          <p className="text-slate-500 dark:text-slate-400">Total {customers.length} prospek dalam database.</p>
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
@@ -119,7 +110,6 @@ const CustomersPage = () => {
         </button>
       </div>
 
-      {/* Control Section */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
@@ -138,7 +128,6 @@ const CustomersPage = () => {
         </div>
       </div>
 
-      {/* Main Grid */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map(i => (
@@ -150,7 +139,7 @@ const CustomersPage = () => {
           layout
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          <AnimatePresence>
+          <AnimatePresence mode="popLayout">
             {filteredCustomers.map((customer) => (
               <CustomerCard 
                 key={customer.id} 
@@ -180,7 +169,6 @@ const CustomersPage = () => {
         </motion.div>
       )}
 
-      {/* Modals & Drawers */}
       <AddCustomerModal 
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
@@ -195,6 +183,16 @@ const CustomersPage = () => {
         onDelete={handleDeleteCustomer}
         onAddNote={handleAddNoteToCustomer}
       />
+
+      {/* Floating Action Button for Mobile */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setIsAddModalOpen(true)}
+        className="lg:hidden fixed right-6 bottom-20 w-14 h-14 bg-primary-600 text-white rounded-full shadow-2xl flex items-center justify-center z-50 shadow-primary-500/40"
+      >
+        <Plus size={24} strokeWidth={3} />
+      </motion.button>
     </div>
   );
 };

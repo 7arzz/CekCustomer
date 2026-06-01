@@ -18,13 +18,6 @@ const CustomerCard = ({ customer, onClick }) => {
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex gap-4">
-          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 overflow-hidden border border-slate-200 dark:border-slate-700">
-            {customer.photoUrl ? (
-              <img src={customer.photoUrl} alt={customer.name} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-xl font-bold">{customer.name.charAt(0)}</span>
-            )}
-          </div>
           <div>
             <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-primary-600 transition-colors">
               {customer.name}

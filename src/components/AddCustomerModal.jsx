@@ -8,7 +8,6 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
     name: '',
     businessName: '',
     category: '',
-    photoUrl: '',
     notes: [],
     links: [
       { label: 'WhatsApp', url: '', contacted: false },
@@ -48,7 +47,6 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
       name: '',
       businessName: '',
       category: '',
-      photoUrl: '',
       notes: [],
       links: [
         { label: 'WhatsApp', url: '', contacted: false },
@@ -73,7 +71,7 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+          className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl lg:rounded-3xl shadow-2xl overflow-hidden h-[95vh] lg:h-auto max-h-[95vh] flex flex-col"
         >
           <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 sticky top-0 z-10">
             <div>
@@ -126,18 +124,6 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                  <LinkIcon size={16} /> URL Foto/Logo (Opsional)
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://example.com/logo.png"
-                  className="input-field"
-                  value={formData.photoUrl}
-                  onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
-                />
-              </div>
             </div>
 
             <div className="space-y-4">
@@ -154,9 +140,9 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
               
               <div className="space-y-3">
                 {formData.links.map((link, index) => (
-                  <div key={index} className="flex gap-3 items-end bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <div className="flex-1 space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400">Label</label>
+                  <div key={index} className="flex flex-col sm:flex-row gap-3 items-start sm:items-end bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 relative">
+                    <div className="w-full sm:flex-1 space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300">Label</label>
                       <input
                         required
                         type="text"
@@ -166,8 +152,8 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
                         onChange={(e) => handleLinkChange(index, 'label', e.target.value)}
                       />
                     </div>
-                    <div className="flex-[2] space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400">URL / Username</label>
+                    <div className="w-full sm:flex-[2] space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-300">URL / Username</label>
                       <input
                         required
                         type="text"
@@ -180,7 +166,7 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
                     <button
                       type="button"
                       onClick={() => handleRemoveLink(index)}
-                      className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                      className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 p-2 text-slate-400 hover:text-red-500 transition-colors"
                       disabled={formData.links.length <= 1}
                     >
                       <Trash2 size={18} />

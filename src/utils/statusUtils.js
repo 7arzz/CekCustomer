@@ -1,5 +1,5 @@
-export const determineStatus = (links, isDeal = false) => {
-  if (isDeal) return "Deal";
+export const determineStatus = (links, isDone = false) => {
+  if (isDone) return "Done";
   
   const contactedCount = links.filter(link => link.contacted).length;
   
@@ -20,7 +20,7 @@ export const getStatusColor = (status) => {
       return "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
     case "Sudah Dihubungi":
       return "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
-    case "Deal":
+    case "Done":
       return "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400";
     default:
       return "bg-slate-100 text-slate-600";

@@ -11,16 +11,14 @@ import {
   Trash2,
   CheckCircle,
   Circle,
-  MoreVertical,
   History,
   TrendingUp,
-  User,
-  Briefcase,
-  Tag
+  RotateCcw
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { determineStatus, getStatusColor } from '../utils/statusUtils';
+import { cn } from '../utils/cn';
 
 const CustomerDetailDrawer = ({ isOpen, onClose, customer, onUpdate, onDelete, onAddNote }) => {
   const [newNote, setNewNote] = useState('');
@@ -36,7 +34,7 @@ const CustomerDetailDrawer = ({ isOpen, onClose, customer, onUpdate, onDelete, o
         window.open(updatedLinks[index].url, '_blank');
     }
 
-    const newStatus = determineStatus(updatedLinks, customer.status === "Deal");
+    const newStatus = determineStatus(updatedLinks, customer.status === "Done");
     
     const activity = {
         id: `activity-${Date.now()}`,
@@ -51,16 +49,34 @@ const CustomerDetailDrawer = ({ isOpen, onClose, customer, onUpdate, onDelete, o
     });
   };
 
-  const handleMarkDeal = () => {
-     const activity = {
-        id: `activity-${Date.now()}`,
-        date: new Date(),
-        text: "Status Deal"
+  const handleToggleDone = () => {
+    const isCurrentlyDone = customer.status === "Done";
+    // If cancelling Done, recalculate status based on links
+    const newStatus = isCurrentlyDone 
+      ? determineStatus(customer.links, false) 
+      : "Done";
+       
+    const activity = {
+       id: `activity-${Date.now()}`,
+       date: new Date(),
+       text: isCurrentlyDone ? "Membatalkan status Done" : "Status Selesai (Done)"
     };
+
     onUpdate(customer.id, { 
-      status: "Deal",
+      status: newStatus,
       activity: [activity, ...(customer.activity || [])]
     });
+  };
+
+  const safeFormatDate = (dateVal, formatStr) => {
+    try {
+      if (!dateVal) return '---';
+      const d = dateVal.toDate ? dateVal.toDate() : new Date(dateVal);
+      if (isNaN(d.getTime())) return '---';
+      return format(d, formatStr, { locale: id });
+    } catch (error) {
+      return '---';
+    }
   };
 
   const handleNoteSubmit = (e) => {
@@ -91,10 +107,8 @@ const CustomerDetailDrawer = ({ isOpen, onClose, customer, onUpdate, onDelete, o
             {/* Header */}
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 rounded-2xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-xl">
-                   {customer.photoUrl ? (
-                     <img src={customer.photoUrl} alt={customer.name} className="w-full h-full object-cover rounded-2xl" />
-                   ) : customer.name.charAt(0)}
+                 <div className="w-12 h-12 rounded-2xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400 font-bold text-xl uppercase">
+                   {customer.name.charAt(0)}
                  </div>
                  <div>
                    <h2 className="text-xl font-bold dark:text-white leading-tight">{customer.name}</h2>
@@ -124,19 +138,30 @@ const CustomerDetailDrawer = ({ isOpen, onClose, customer, onUpdate, onDelete, o
               <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl">
                  <div className="space-y-1">
                    <p className="text-[10px] uppercase font-bold text-slate-400">Status Saat Ini</p>
-                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(customer.status)}`}>
-                     {customer.status === "Deal" && <TrendingUp size={14} />}
+                   <span className={cn(
+                     "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all",
+                     getStatusColor(customer.status)
+                   )}>
+                     {customer.status === "Done" && <CheckCircle2 size={14} />}
                      {customer.status}
                    </span>
                  </div>
-                 {customer.status !== "Deal" && (
-                   <button 
-                    onClick={handleMarkDeal}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-200 dark:shadow-none"
-                   >
-                     Tandai Deal
-                   </button>
-                 )}
+                 
+                 <button 
+                  onClick={handleToggleDone}
+                  className={cn(
+                    "flex items-center gap-2 px-6 py-2 rounded-xl text-sm font-bold transition-all shadow-lg dark:shadow-none",
+                    customer.status === "Done" 
+                      ? "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700" 
+                      : "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-200"
+                  )}
+                 >
+                   {customer.status === "Done" ? (
+                     <><RotateCcw size={16} /> Batal</>
+                   ) : (
+                     'Done'
+                   )}
+                 </button>
               </div>
 
               {/* Links Section */}
@@ -162,7 +187,10 @@ const CustomerDetailDrawer = ({ isOpen, onClose, customer, onUpdate, onDelete, o
                           {link.contacted ? <CheckCircle size={24} /> : <Circle size={24} />}
                         </button>
                         <div>
-                          <p className={`font-bold text-sm ${link.contacted ? 'text-primary-900 dark:text-primary-100' : 'text-slate-700 dark:text-slate-300'}`}>
+                          <p className={cn(
+                            "font-bold text-sm",
+                            link.contacted ? 'text-primary-900 dark:text-primary-100' : 'text-slate-700 dark:text-slate-300'
+                          )}>
                             {link.label}
                           </p>
                           <p className="text-xs text-slate-400 truncate max-w-[200px]">{link.url}</p>
@@ -207,7 +235,7 @@ const CustomerDetailDrawer = ({ isOpen, onClose, customer, onUpdate, onDelete, o
                     <div key={note.id || idx} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
-                          <Calendar size={12} /> {format(new Date(note.date), 'dd MMM yyyy', { locale: id })}
+                          <Calendar size={12} /> {safeFormatDate(note.date, 'dd MMM yyyy')}
                         </span>
                       </div>
                       <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{note.text}</p>
@@ -226,7 +254,7 @@ const CustomerDetailDrawer = ({ isOpen, onClose, customer, onUpdate, onDelete, o
                     <div key={act.id || idx} className="relative pl-8">
                        <div className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-white dark:bg-slate-950 border-2 border-primary-500 z-10" />
                        <p className="text-xs font-bold text-slate-400 mb-1">
-                         {format(new Date(act.date), 'dd MMM yyyy, HH:mm', { locale: id })}
+                         {safeFormatDate(act.date, 'dd MMM yyyy, HH:mm')}
                        </p>
                        <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">{act.text}</p>
                     </div>
