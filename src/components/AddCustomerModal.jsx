@@ -57,7 +57,10 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
       businessName: "",
       category: "",
       notes: [],
-      links: [{ label: "Instagram", url: "", contacted: false }],
+      links: [
+        { label: "WhatsApp", url: "", contacted: false },
+        { label: "Instagram", url: "", contacted: false },
+      ],
     });
   };
 
