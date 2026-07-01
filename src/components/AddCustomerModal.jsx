@@ -19,7 +19,6 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
     category: "",
     notes: [],
     links: [
-      { label: "WhatsApp", url: "", contacted: false },
       { label: "Instagram", url: "", contacted: false },
     ],
   });
@@ -58,7 +57,6 @@ const AddCustomerModal = ({ isOpen, onClose, onAdd }) => {
       category: "",
       notes: [],
       links: [
-        { label: "WhatsApp", url: "", contacted: false },
         { label: "Instagram", url: "", contacted: false },
       ],
     });
